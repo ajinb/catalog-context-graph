@@ -1,0 +1,128 @@
+{
+  "documents": 44,
+  "questions": 16,
+  "by_k": {
+    "3": {
+      "mean_recall": 0.403,
+      "mean_strict_recall": 0.135,
+      "context_chars": 873,
+      "complete_answers": 1,
+      "recall_by_max_hops": {
+        "1": 1.0,
+        "2": 0.306,
+        "3": 0.367,
+        "4": 0.5
+      },
+      "worst": [
+        [
+          0.0,
+          "If the warehouse is down, what breaks?",
+          [
+            "component:feature-store",
+            "component:fraud-scoring",
+            "component:payments-service",
+            "component:reporting-job"
+          ]
+        ],
+        [
+          0.25,
+          "If the orders database goes down, which components stop working?",
+          [
+            "component:checkout-service",
+            "component:reporting-job",
+            "component:web-frontend"
+          ]
+        ],
+        [
+          0.29,
+          "What does the web storefront depend on, all the way down to the data stores?",
+          [
+            "resource:catalog-db",
+            "resource:payments-db",
+            "resource:search-index",
+            "resource:sessions-cache",
+            "resource:users-db"
+          ]
+        ]
+      ]
+    },
+    "5": {
+      "mean_recall": 0.563,
+      "mean_strict_recall": 0.228,
+      "context_chars": 1294,
+      "complete_answers": 3,
+      "recall_by_max_hops": {
+        "1": 1.0,
+        "2": 0.417,
+        "3": 0.569,
+        "4": 0.5
+      },
+      "worst": [
+        [
+          0.25,
+          "If the orders database goes down, which components stop working?",
+          [
+            "component:checkout-service",
+            "component:reporting-job",
+            "component:web-frontend"
+          ]
+        ],
+        [
+          0.25,
+          "If the warehouse is down, what breaks?",
+          [
+            "component:fraud-scoring",
+            "component:payments-service",
+            "component:reporting-job"
+          ]
+        ],
+        [
+          0.33,
+          "If users-db fails, what stops working?",
+          [
+            "component:checkout-service",
+            "component:web-frontend"
+          ]
+        ]
+      ]
+    },
+    "10": {
+      "mean_recall": 0.661,
+      "mean_strict_recall": 0.325,
+      "context_chars": 2146,
+      "complete_answers": 4,
+      "recall_by_max_hops": {
+        "1": 1.0,
+        "2": 0.694,
+        "3": 0.635,
+        "4": 0.5
+      },
+      "worst": [
+        [
+          0.33,
+          "What breaks if the feature store is slow?",
+          [
+            "component:checkout-service",
+            "component:payments-service"
+          ]
+        ],
+        [
+          0.33,
+          "What is affected if the payments database is unavailable?",
+          [
+            "component:checkout-service",
+            "component:web-frontend"
+          ]
+        ],
+        [
+          0.33,
+          "Which teams should be told about a fraud-scoring outage?",
+          [
+            "group:team-checkout",
+            "group:team-web"
+          ]
+        ]
+      ]
+    }
+  }
+}

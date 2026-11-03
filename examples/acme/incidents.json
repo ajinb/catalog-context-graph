@@ -1,0 +1,4 @@
+[
+  {"id": "INC-2041", "title": "Payments DB failover took 9 minutes", "date": "2026-09-14", "affects": ["resource:payments-db", "component:payments-service"]},
+  {"id": "INC-2077", "title": "Session cache eviction storm logged users out", "date": "2026-10-02", "affects": ["resource:sessions-cache"]}
+]

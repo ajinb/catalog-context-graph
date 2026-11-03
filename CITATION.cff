@@ -1,0 +1,21 @@
+cff-version: 1.2.0
+title: "catalog-context-graph"
+message: "If you use this software, please cite it using the metadata below."
+type: software
+authors:
+  - family-names: Baby
+    given-names: Ajin
+    orcid: "https://orcid.org/0009-0007-6190-9516"
+repository-code: "https://github.com/ajinb/catalog-context-graph"
+url: "https://cloudandsre.com"
+abstract: "Turns a Backstage software catalog, OpenTelemetry service-graph edges and incident history into an operational context graph that AI agents query over MCP through bounded, read-only tools (blast radius, ownership, change risk, catalog drift), with Neo4j as an optional system of record and a deterministic evaluation against flat retrieval."
+license: Apache-2.0
+version: "0.1.0"
+date-released: "2026-11-03"
+keywords:
+  - backstage
+  - knowledge-graph
+  - neo4j
+  - model-context-protocol
+  - ai-agents
+  - sre

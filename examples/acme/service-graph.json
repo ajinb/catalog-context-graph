@@ -1,0 +1,16 @@
+{
+  "source": "otel-collector servicegraph connector, 24h window",
+  "edges": [
+    {"client": "web-frontend", "server": "checkout-service", "requests": 18234},
+    {"client": "web-frontend", "server": "catalog-service", "requests": 90411},
+    {"client": "web-frontend", "server": "auth-service", "requests": 40112},
+    {"client": "catalog-service", "server": "search-service", "requests": 30772},
+    {"client": "checkout-service", "server": "payments-service", "requests": 17901},
+    {"client": "checkout-service", "server": "auth-service", "requests": 18003},
+    {"client": "checkout-service", "server": "fraud-scoring", "requests": 1290},
+    {"client": "payments-service", "server": "fraud-scoring", "requests": 17880},
+    {"client": "fraud-scoring", "server": "feature-store", "requests": 17880},
+    {"client": "order-worker", "server": "payments-service", "requests": 455},
+    {"client": "legacy-cron", "server": "orders-api-v1", "requests": 3}
+  ]
+}

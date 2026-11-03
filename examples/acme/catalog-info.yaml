@@ -1,0 +1,492 @@
+apiVersion: backstage.io/v1alpha1
+kind: Domain
+metadata:
+  name: commerce
+  description: Everything customers touch while shopping.
+spec:
+  owner: commerce-org
+---
+apiVersion: backstage.io/v1alpha1
+kind: Domain
+metadata:
+  name: platform
+  description: Shared platform capabilities.
+spec:
+  owner: platform-org
+---
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: storefront
+  description: Browsing, search and the shopping cart.
+spec:
+  owner: team-web
+  domain: commerce
+---
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: payments
+  description: Payment authorization and fraud checks.
+spec:
+  owner: team-payments
+  domain: commerce
+---
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: identity
+  description: Sign-in, sessions and user accounts.
+spec:
+  owner: team-identity
+  domain: platform
+---
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: data-platform
+  description: Warehouse, features and reporting.
+spec:
+  owner: team-data
+  domain: platform
+---
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: commerce-org
+spec:
+  type: team
+  children: []
+---
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: platform-org
+spec:
+  type: team
+  children: []
+---
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: team-web
+spec:
+  type: team
+  children: []
+  parent: commerce-org
+---
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: team-checkout
+spec:
+  type: team
+  children: []
+  parent: commerce-org
+---
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: team-payments
+spec:
+  type: team
+  children: []
+  parent: commerce-org
+---
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: team-identity
+spec:
+  type: team
+  children: []
+  parent: platform-org
+---
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: team-data
+spec:
+  type: team
+  children: []
+  parent: platform-org
+---
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: sre
+spec:
+  type: team
+  children: []
+  parent: platform-org
+---
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: ada
+spec:
+  memberOf:
+  - team-web
+---
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: linus
+spec:
+  memberOf:
+  - team-web
+---
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: grace
+spec:
+  memberOf:
+  - team-checkout
+---
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: ken
+spec:
+  memberOf:
+  - team-payments
+---
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: barbara
+spec:
+  memberOf:
+  - team-identity
+---
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: dennis
+spec:
+  memberOf:
+  - team-data
+---
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: margaret
+spec:
+  memberOf:
+  - sre
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: web-frontend
+  description: The customer-facing web storefront.
+  annotations:
+    cloudandsre.com/runbook: runbooks/web-frontend.md
+    cloudandsre.com/tier: '1'
+    pagerduty.com/service-id: PWEB01
+spec:
+  type: website
+  lifecycle: production
+  owner: team-web
+  system: storefront
+  consumesApis:
+  - checkout-api
+  - catalog-api
+  - auth-api
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: catalog-service
+  description: Product listings and prices.
+  annotations:
+    cloudandsre.com/runbook: runbooks/catalog-service.md
+    cloudandsre.com/tier: '2'
+    pagerduty.com/service-id: PCAT01
+spec:
+  type: service
+  lifecycle: production
+  owner: team-web
+  system: storefront
+  dependsOn:
+  - resource:catalog-db
+  - component:search-service
+  providesApis:
+  - catalog-api
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: search-service
+  description: Full-text product search.
+  annotations:
+    cloudandsre.com/runbook: runbooks/search-service.md
+    cloudandsre.com/tier: '2'
+spec:
+  type: service
+  lifecycle: production
+  owner: team-web
+  system: storefront
+  dependsOn:
+  - resource:search-index
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: checkout-service
+  description: Cart checkout and order creation.
+  annotations:
+    cloudandsre.com/runbook: runbooks/checkout-service.md
+    cloudandsre.com/tier: '1'
+    pagerduty.com/service-id: PCHK01
+spec:
+  type: service
+  lifecycle: production
+  owner: team-checkout
+  system: storefront
+  dependsOn:
+  - resource:orders-db
+  - resource:orders-queue
+  providesApis:
+  - checkout-api
+  consumesApis:
+  - payments-api
+  - auth-api
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: order-worker
+  description: Fulfils orders from the queue and sends confirmations.
+  annotations:
+    cloudandsre.com/runbook: runbooks/order-worker.md
+    cloudandsre.com/tier: '2'
+spec:
+  type: service
+  lifecycle: production
+  owner: team-checkout
+  system: storefront
+  dependsOn:
+  - resource:orders-queue
+  - resource:orders-db
+  - component:email-service
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: email-service
+  description: Transactional email.
+  annotations:
+    cloudandsre.com/runbook: runbooks/email-service.md
+    cloudandsre.com/tier: '3'
+spec:
+  type: service
+  lifecycle: production
+  owner: team-checkout
+  system: storefront
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: payments-service
+  description: Authorizes card payments.
+  annotations:
+    cloudandsre.com/runbook: runbooks/payments-service.md
+    cloudandsre.com/tier: '1'
+    pagerduty.com/service-id: PPAY01
+spec:
+  type: service
+  lifecycle: production
+  owner: team-payments
+  system: payments
+  dependsOn:
+  - resource:payments-db
+  - component:fraud-scoring
+  providesApis:
+  - payments-api
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: fraud-scoring
+  description: Scores transactions for fraud risk.
+  annotations:
+    cloudandsre.com/runbook: runbooks/fraud-scoring.md
+    cloudandsre.com/tier: '1'
+spec:
+  type: service
+  lifecycle: production
+  owner: team-payments
+  system: payments
+  dependsOn:
+  - component:feature-store
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: feature-store
+  description: Online features for models.
+  annotations:
+    cloudandsre.com/runbook: runbooks/feature-store.md
+    cloudandsre.com/tier: '2'
+spec:
+  type: service
+  lifecycle: production
+  owner: team-data
+  system: data-platform
+  dependsOn:
+  - resource:warehouse
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: auth-service
+  description: Sign-in and session validation.
+  annotations:
+    cloudandsre.com/runbook: runbooks/auth-service.md
+    cloudandsre.com/tier: '1'
+    pagerduty.com/service-id: PAUTH1
+spec:
+  type: service
+  lifecycle: production
+  owner: team-identity
+  system: identity
+  dependsOn:
+  - resource:sessions-cache
+  - resource:users-db
+  providesApis:
+  - auth-api
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: reporting-job
+  description: Nightly business reporting.
+  annotations:
+    cloudandsre.com/runbook: runbooks/reporting-job.md
+    cloudandsre.com/tier: '3'
+spec:
+  type: job
+  lifecycle: experimental
+  owner: team-data
+  system: data-platform
+  dependsOn:
+  - resource:warehouse
+  - resource:orders-db
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: catalog-db
+spec:
+  type: database
+  owner: team-web
+  system: storefront
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: search-index
+spec:
+  type: search-index
+  owner: team-web
+  system: storefront
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: orders-db
+spec:
+  type: database
+  owner: team-checkout
+  system: storefront
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: orders-queue
+spec:
+  type: queue
+  owner: team-checkout
+  system: storefront
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: payments-db
+spec:
+  type: database
+  owner: team-payments
+  system: payments
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: users-db
+spec:
+  type: database
+  owner: team-identity
+  system: identity
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: sessions-cache
+spec:
+  type: cache
+  owner: team-identity
+  system: identity
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: warehouse
+spec:
+  type: database
+  owner: team-data
+  system: data-platform
+---
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: catalog-api
+spec:
+  type: openapi
+  lifecycle: production
+  owner: team-web
+  system: storefront
+  definition: 'openapi: 3.1.0'
+---
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: checkout-api
+spec:
+  type: openapi
+  lifecycle: production
+  owner: team-checkout
+  system: storefront
+  definition: 'openapi: 3.1.0'
+---
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: payments-api
+spec:
+  type: openapi
+  lifecycle: production
+  owner: team-payments
+  system: payments
+  definition: 'openapi: 3.1.0'
+---
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: auth-api
+spec:
+  type: openapi
+  lifecycle: production
+  owner: team-identity
+  system: identity
+  definition: 'openapi: 3.1.0'

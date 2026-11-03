@@ -1,0 +1,65 @@
+# Operational questions an on-call engineer or an agent asks of the catalog.
+# Ground truth is computed by the graph tools from declared relations; the eval measures
+# whether flat top-k retrieval over catalog documents even contains the entities needed.
+questions:
+  - question: "If the orders database goes down, which components stop working?"
+    tool: blast_radius
+    ref: resource:orders-db
+    answer_kind: component
+  - question: "Which teams do we page if orders-db fails?"
+    tool: teams_to_notify
+    ref: resource:orders-db
+  - question: "What is affected if the payments database is unavailable?"
+    tool: blast_radius
+    ref: resource:payments-db
+    answer_kind: component
+  - question: "Who needs to know if the payments-db has an outage?"
+    tool: teams_to_notify
+    ref: resource:payments-db
+  - question: "If the warehouse is down, what breaks?"
+    tool: blast_radius
+    ref: resource:warehouse
+    answer_kind: component
+  - question: "Which teams are affected when the warehouse fails?"
+    tool: teams_to_notify
+    ref: resource:warehouse
+  - question: "What depends on the sessions cache?"
+    tool: blast_radius
+    ref: resource:sessions-cache
+    answer_kind: component
+  - question: "If search-index is corrupted, which services are impacted?"
+    tool: blast_radius
+    ref: resource:search-index
+    answer_kind: component
+  - question: "What breaks if the feature store is slow?"
+    tool: blast_radius
+    ref: component:feature-store
+    answer_kind: component
+  - question: "Which teams should be told about a fraud-scoring outage?"
+    tool: teams_to_notify
+    ref: component:fraud-scoring
+  - question: "What does the web storefront depend on, all the way down to the data stores?"
+    tool: dependencies
+    ref: component:web-frontend
+    depth: 4
+    answer_kind: resource
+  - question: "Which data stores does checkout-service need?"
+    tool: dependencies
+    ref: component:checkout-service
+    depth: 4
+    answer_kind: resource
+  - question: "What does payments-service rely on?"
+    tool: dependencies
+    ref: component:payments-service
+    depth: 3
+  - question: "Which components does order-worker need to function?"
+    tool: dependencies
+    ref: component:order-worker
+    answer_kind: component
+  - question: "If users-db fails, what stops working?"
+    tool: blast_radius
+    ref: resource:users-db
+    answer_kind: component
+  - question: "Who do we notify when the orders queue backs up?"
+    tool: teams_to_notify
+    ref: resource:orders-queue
